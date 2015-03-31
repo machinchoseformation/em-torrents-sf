@@ -2,6 +2,7 @@
 
 namespace AppBundle\Parser;
 
+use AppBundle\AppBundle;
 use Symfony\Component\DomCrawler\Crawler;
 use AppBundle\Entity\Movie;
 
@@ -13,6 +14,7 @@ class ImdbParser extends BaseParser {
         $movie = new Movie();
         $movie->setImdbId($imdbId);
 
+        $this->client->getClient()->setDefaultOption("headers/Accept-Language", "en-us,en;q=0.5");
         $crawler = $this->client->request("GET", "http://www.imdb.com/title/tt" . $imdbId);
 
         $movie->setTitle( $this->extractTitle($crawler) );
@@ -21,6 +23,20 @@ class ImdbParser extends BaseParser {
         $movie->setImdbRating( $this->extractRating($crawler) );
         $movie->setNumVotes( $this->extractNumVotes($crawler) );
         $movie->setPosterUrl( $this->extractPosterUrl($crawler) );
+
+        $genres = $this->extractGenres($crawler);
+        $genreRepo = $this->doctrine->getRepository("AppBundle\Entity\Genre");
+        foreach($genres as $name){
+            $genre = $genreRepo->findOneByName($name);
+            if (!$genre){
+                $genre = new \AppBundle\Entity\Genre($name);
+                $em = $this->doctrine->getManager();
+
+                $em->persist($genre);
+                $em->flush();
+            }
+            $movie->addGenre($genre);
+        }
 
         return $movie;
 
@@ -38,6 +54,23 @@ class ImdbParser extends BaseParser {
         }
 
         return null;
+    }
+    /**
+     * @param Crawler $crawler
+     * @return null|string
+     */
+    protected function extractGenres(Crawler $crawler)
+    {
+        $genreCrawler = $crawler->filter('.infobar span[itemprop="genre"]');
+        if (count($genreCrawler) > 0){
+            $genres = array();
+            $genreCrawler->each(function($nodeCrawler, $i) use(&$genres){
+                $genres[] = $nodeCrawler->text();
+            });
+            return $genres;
+        }
+
+        return array();
     }
 
     /**

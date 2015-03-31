@@ -26,7 +26,6 @@ class Movie
     /**
      * @var string
      *
-     * @Assert\NotBlank(message="The movie must have a title")
      * @ORM\Column(name="title", type="string", length=255)
      */
     private $title;
@@ -41,7 +40,6 @@ class Movie
     /**
      * @var string
      *
-     * @Assert\NotBlank(message="The movie must have an imdb ID")
      * @Assert\Regex(
      *     pattern="/\d{7}/"
      * )
@@ -51,9 +49,8 @@ class Movie
 
     /**
      * @var string
-     * @Assert\NotBlank(message="The movie must have a rating")
      * @Assert\Range(
-     *      min = 6,
+     *      min = 7,
      *      max = 10,
      *      minMessage = "The movie must have a rating of minimum {{ limit }}",
      *      maxMessage = "The movie must have a rating of maximum {{ limit }}"
@@ -64,9 +61,8 @@ class Movie
 
     /**
      * @var integer
-     * @Assert\NotBlank(message="The movie must have a number of votes")
      * @Assert\GreaterThan(
-     *     value = 5000, message="Minimum 5000 votes !"
+     *     value = 10000
      * )
      * @ORM\Column(name="numVotes", type="integer")
      */
@@ -74,8 +70,6 @@ class Movie
 
     /**
      * @var integer
-     *
-     * @Assert\NotBlank(message="The movie must have a release year")
      * @Assert\Regex(
      *     pattern="/(19|20)\d{2}/"
      * )
@@ -86,8 +80,8 @@ class Movie
     /**
      * @var string
      *
-     * @Assert\NotBlank(message="The movie must have a poster")
-     * @Assert\Url(message="The poster is not a valid URL")
+     * @Assert\NotBlank()
+     * @Assert\Url()
      * @ORM\Column(name="posterUrl", type="text")
      */
     private $posterUrl;
@@ -108,12 +102,12 @@ class Movie
 
     /**
      * @var \Doctrine\Common\Collections\ArrayCollection
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Torrent", mappedBy="movie", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Torrent", mappedBy="movie")
      */
     private $torrents;
 
     /**
-     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\Genre", inversedBy="movies", cascade={"remove", "persist"})
+     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\Genre", inversedBy="movies")
      */
     private $genres;
 
@@ -389,38 +383,5 @@ class Movie
     public function getNumVotes()
     {
         return $this->numVotes;
-    }
-
-    /**
-     * Add genres
-     *
-     * @param \AppBundle\Entity\Genre $genres
-     * @return Movie
-     */
-    public function addGenre(\AppBundle\Entity\Genre $genres)
-    {
-        $this->genres[] = $genres;
-
-        return $this;
-    }
-
-    /**
-     * Remove genres
-     *
-     * @param \AppBundle\Entity\Genre $genres
-     */
-    public function removeGenre(\AppBundle\Entity\Genre $genres)
-    {
-        $this->genres->removeElement($genres);
-    }
-
-    /**
-     * Get genres
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getGenres()
-    {
-        return $this->genres;
     }
 }

@@ -2,91 +2,104 @@
 
     namespace AppBundle\Command;
 
-    use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+    use Symfony\Component\Console\Command\Command;
     use Symfony\Component\Console\Input\InputInterface;
+    use Symfony\Component\Console\Input\InputArgument;
     use Symfony\Component\Console\Output\OutputInterface;
 
-    class ParseKickAssCommand extends ContainerAwareCommand
+    class ParseKickAssCommand extends Command
     {
-        protected $baseUrl = "http://kickass.to/movies/3/?field=seeders&sorder=desc";
-        protected $oi;
+        protected $baseUrl = "http://kickass.to/movies/##page##/?field=seeders&sorder=desc";
+        protected $oi; //output interface
+        protected $doctrine;
+        protected $validator;
+        protected $kickass_parser;
+        protected $imdb_parser;
+
+        public function __construct($doctrine, $validator, $kickass_parser, $imdb_parser)
+        {
+            parent::__construct();
+            $this->doctrine = $doctrine;
+            $this->validator = $validator;
+            $this->kickass_parser = $kickass_parser;
+            $this->imdb_parser = $imdb_parser;
+        }
 
         public function configure()
         {
             $this
                 ->setName("em:parse:kickass")
-                ->setDescription("Extracts movies from KickAss Torrents");
+                ->setDescription("Extracts movies from KickAss Torrents")
+                ->addArgument(
+                    'page',
+                    InputArgument::OPTIONAL,
+                    'Which page to parse in kickass ?'
+                );
         }
 
         protected function execute(InputInterface $input, OutputInterface $output)
         {
             $this->oi = $output;
-            $container = $this->getContainer();
-            $kickass_parser = $container->get('kickass_parser');
-            $imdb_parser = $container->get('imdb_parser');
-            $validator = $container->get('validator');
 
-            $output->writeln("Parsing list page...");
+            $page = $input->getArgument('page');
+            $page = ($page) ? $page : 1;
+            $baseUrl = str_replace("##page##", $page, $this->baseUrl);
+
+            $output->writeln("Parsing list page number $page...");
 
             //get all links to detailled page
-            $linksCrawler = $kickass_parser->parseListPage($this->baseUrl);
+            $detailLinks = $this->kickass_parser->parseListPage($baseUrl);
 
-            //only 4 for faster testing
-           /*$start = 8;
-            $end = $start+5;
-            $linksCrawler = $linksCrawler->reduce(function($node, $i) use($start,$end){
-                return $i >= $start && $i <= $end;
-            });*/
+            $output->writeln("Looking for new torrents...");
+            $this->getAndSaveNewData($detailLinks);
+        }
 
-            //add all detail links in an array
-            $detailLinks = array();
-            $linksCrawler->each(function($linkCrawler) use (&$detailLinks) {
-                $detailLinks[] = $linkCrawler->link()->getUri();
-            });
 
-            $doctrine = $container->get('doctrine');
-            $movieRepo = $doctrine->getRepository("AppBundle\Entity\Movie");
-            $torrentRepo = $doctrine->getRepository("AppBundle\Entity\Torrent");
+        protected function getAndSaveNewData(array $detailLinks)
+        {
+            $movieRepo = $this->doctrine->getRepository("AppBundle\Entity\Movie");
+            $torrentRepo = $this->doctrine->getRepository("AppBundle\Entity\Torrent");
 
             //loop through all links in array
             foreach($detailLinks as $detailUri){
-                $output->writeln( "\r\nGetting " . $detailUri . "...");
+                $this->oi->writeln( "\r\nGetting " . $detailUri . "...");
 
                 //get detailled torrent info
-                $torrent = $kickass_parser->parseDetailPage( $detailUri );
+                $torrent = $this->kickass_parser->parseDetailPage( $detailUri );
 
                 //torrent already in db ?
                 //maybe update here instead...
                 if ($torrentRepo->findOneByInfoHash($torrent->getInfoHash())){
-                    $output->writeln("Torrent already there !");
+                    $this->oi->writeln("Torrent already there !");
                     continue;
                 }
 
                 //movie already in db ?
                 $movie = $movieRepo->findOneByImdbId( $torrent->getImdbId() );
                 if (!$movie){
+
                     //get movie info from imdb
-                    $movie = $imdb_parser->parseMoviePage( $torrent->getImdbId() );
+                    $movie = $this->imdb_parser->parseMoviePage( $torrent->getImdbId() );
 
                     //check if valid
-                    $movieValidationErrors = $validator->validate($movie);
+                    $movieValidationErrors = $this->validator->validate($movie);
                     if (count($movieValidationErrors) > 0){
                         $this->showValidationErrors($movieValidationErrors, "Movie not good enough !");
                         continue;
                     }
 
-                    //save it
+                    //save it, even if we do not save the torrent later on
                     $this->saveEntity($movie, "Movie");
                 }
                 else {
-                    $output->writeln("Movie already there !");
+                    $this->oi->writeln("Movie already there !");
                 }
 
                 //assign movie to torrent
                 $torrent->setMovie($movie);
 
                 //validate torrent
-                $torrentValidationErrors = $validator->validate($torrent);
+                $torrentValidationErrors = $this->validator->validate($torrent);
                 if (count($torrentValidationErrors) > 0){
                     $this->showValidationErrors($torrentValidationErrors, "Torrent not good enough !");
                     continue;
@@ -104,7 +117,7 @@
 
         protected function saveEntity($entity, $type)
         {
-            $em = $this->getContainer()->get('doctrine')->getManager();
+            $em = $this->doctrine->getManager();
             $em->persist($entity);
             $em->flush(); //flush right away to avoid data lost on error
             $this->oi->writeln("<info>$type saved !</info>");
@@ -117,8 +130,8 @@
             }
 
             foreach($errors as $e){
-                $invalidValue = (empty($e->getInvalidValue())) ? "null" : $e->getInvalidValue();
-                $this->oi->writeln("" . $e->getMessage() . "(" . $invalidValue . ")");
+                $invalidValue = (!$e->getInvalidValue()) ? "null" : $e->getInvalidValue();
+                $this->oi->writeln("" . $e->getMessage() . " (<error>" . $invalidValue . "</error>)");
             }
         }
 

@@ -3,6 +3,8 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
+
 
 /**
  * MovieRepository
@@ -12,4 +14,18 @@ use Doctrine\ORM\EntityRepository;
  */
 class MovieRepository extends EntityRepository
 {
+
+    public function getMovies()
+    {
+        $dql = "SELECT g,m,t
+                FROM AppBundle:Movie m
+                JOIN m.torrents t
+                LEFT JOIN m.genres g
+                ORDER BY m.imdbRating DESC";
+        $query = $this->getEntityManager()->createQuery($dql);
+        $query->setMaxResults(20);
+        $paginator = new Paginator($query);
+        return $paginator;
+    }
+
 }

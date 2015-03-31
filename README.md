@@ -25,7 +25,9 @@
 
 ##Cli :
 La commande a réaliser doit permettre de récupérer les nouveaux torrents de films en fonction de plusieurs critères. Ce code est placé dans une commande pour être très facilement exécutable automatiquement, à intervalle régulier (cron job).
+
 Voici les grandes étapes pour récupérer les données :
+
 1. Au lancement de la commande, parser la page suivante :
 http://kickass.to/movies/?field=seeders&sorder=desc
 2. Récupérer tous les liens présents vers les pages de détail de torrent

@@ -27,7 +27,6 @@ class Torrent
     /**
      * @var string
      *
-     * @Assert\NotBlank(message="The torrent must have a title")
      * @ORM\Column(name="title", type="string", length=255)
      */
     private $title;
@@ -35,14 +34,12 @@ class Torrent
     /**
      * @var string
      *
-     * @Assert\NotBlank(message="The torrent must have a magnet link")
      * @ORM\Column(name="magnetLink", type="text")
      */
     private $magnetLink;
 
     /**
      * @var string
-     * @Assert\NotBlank(message="The torrent must have an info hash")
      * @Assert\Regex(
      *     pattern="/[a-f0-9]{40}/i"
      * )
@@ -80,7 +77,7 @@ class Torrent
      * @var string
      *
      * @Assert\Choice(callback = "getOkQualities")
-     * @ORM\Column(name="quality", type="string", length=30, nullable=true)
+     * @ORM\Column(name="quality", type="string", length=30)
      */
     private $quality;
 
@@ -100,8 +97,7 @@ class Torrent
 
     /**
      * @var Movie
-     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Movie", inversedBy="torrents", cascade={"persist"})
-     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Movie", inversedBy="torrents")
      */
     private $movie;
 
@@ -144,22 +140,6 @@ class Torrent
         $this->title = $title;
 
         return $this;
-    }
-
-    public function setQualityFromTitle($title = null)
-    {
-        $title = ($title) ? $title : $this->getTitle();
-        $foundQualities = [];
-        $allQualities = array_merge(self::getBadQualities(), self::getOkQualities());
-        foreach($allQualities as $quality){
-            if (strstr(strtoupper($title), $quality) > -1){
-                $foundQualities[] = $quality;
-            }
-        }
-        if (count($foundQualities) >= 1){
-            $this->setQuality($foundQualities[0]);
-        }
-        return $this->getQuality();
     }
 
     /**
@@ -358,12 +338,12 @@ class Torrent
     }
 
 
-    public static function getOkQualities()
+    public function getOkQualities()
     {
-        return array("DVDRIP", "DVDSCR", "BRSCR", "BRRIP", "WEBRIP", "HDRIP", "HDTV");
+        return array("DVDRIP", "BRRIP", "WEBRIP", "HDRIP", "HDTV");
     }
 
-    public static function getBadQualities()
+    public function getBadQualities()
     {
         return array("CAM", "TS", "HDTS", "HDCAM");
     }
@@ -390,5 +370,4 @@ class Torrent
     {
         return $this->quality;
     }
-
 }

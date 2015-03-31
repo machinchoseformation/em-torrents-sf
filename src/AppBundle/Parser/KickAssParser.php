@@ -9,21 +9,33 @@
 
     class KickAssParser extends BaseParser {
 
-        public function __construct(\Goutte\Client $client)
-        {
-            parent::__construct($client);
-        }
 
         /**
          * @param string $listUrl
-         * @return \Symfony\Component\DomCrawler\Crawler
+         * @return array Array of urls
          */
         public function parseListPage($listUrl)
         {
+
             $crawler = $this->client->request('GET', $listUrl);
             $linksCrawler = $crawler->filter("tr a.cellMainLink");
 
-            return $linksCrawler;
+            //only a few for faster testing
+            /*
+            $start = 8;
+            $end = $start+5;
+            $linksCrawler = $linksCrawler->reduce(function($node, $i) use($start,$end){
+                return $i >= $start && $i <= $end;
+            });
+            */
+
+            //add all detail links in an array
+            $detailLinks = array();
+            $linksCrawler->each(function($linkCrawler) use (&$detailLinks) {
+                $detailLinks[] = $linkCrawler->link()->getUri();
+            });
+
+            return $detailLinks;
         }
 
         /**
@@ -38,6 +50,7 @@
 
             //extract torrent title
             $torrent->setTitle( $this->extractTitle($crawler) );
+            $torrent->setQualityFromTitle( $torrent->getTitle() );
             $torrent->setSeeders( $this->extractSeeders($crawler) );
             $torrent->setLeechers( $this->extractLeechers($crawler) );
 
@@ -50,6 +63,7 @@
 
             return $torrent;
         }
+
 
         /**
          * @param Crawler $crawler
