@@ -1,0 +1,12 @@
+services:
+    goutte_client:
+        class: Goutte\Client
+    kickass_parser:
+        class: AppBundle\Parser\KickAssParser
+        arguments: ["@goutte_client"]
+    imdb_parser:
+        class: AppBundle\Parser\ImdbParser
+        arguments: ["@goutte_client"]
+    torrent_data_persister:
+        class: AppBundle\Parser\DataPersister
+        arguments: ["@doctrine"]
