@@ -9,12 +9,19 @@ use AppBundle\Entity\Movie;
 
 class ImdbParser extends BaseParser {
 
+    /**
+     * @param $imdbId
+     * @return Movie
+     */
     public function parseMoviePage($imdbId)
     {
         $movie = new Movie();
         $movie->setImdbId($imdbId);
 
+        //try to get data in english
         $this->client->getClient()->setDefaultOption("headers/Accept-Language", "en-us,en;q=0.5");
+
+        //build the url from imdbid
         $crawler = $this->client->request("GET", "http://www.imdb.com/title/tt" . $imdbId);
 
         $movie->setTitle( $this->extractTitle($crawler) );
