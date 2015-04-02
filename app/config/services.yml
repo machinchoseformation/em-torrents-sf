@@ -9,6 +9,6 @@ services:
         arguments: ["@goutte_client", "@doctrine"]
     parse_kickass_command:
         class: AppBundle\Command\ParseKickAssCommand
-        arguments: ["@doctrine", "@validator", "@kickass_parser", "@imdb_parser"]
+        arguments: ["@doctrine", "@validator", "@kickass_parser", "@imdb_parser", "@logger"]
         tags:
             -  { name: console.command }
