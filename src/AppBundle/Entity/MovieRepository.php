@@ -28,4 +28,18 @@ class MovieRepository extends EntityRepository
         return $paginator;
     }
 
+
+    public function getMovieWithTorrents($id)
+    {
+        $dql = "SELECT g,m,t
+                FROM AppBundle:Movie m
+                LEFT JOIN m.torrents t
+                LEFT JOIN m.genres g
+                WHERE m.id = :id";
+        $query = $this->getEntityManager()->createQuery($dql);
+        $query->setMaxResults(20);
+        $query->setParameter("id", $id);
+        return $query->getSingleResult();
+    }
+
 }

@@ -31,27 +31,32 @@
                 ->setName("em:parse:kickass")
                 ->setDescription("Extracts movies from KickAss Torrents")
                 ->addArgument(
-                    'page',
+                    'pages',
                     InputArgument::OPTIONAL,
-                    'Which page to parse in kickass ?'
+                    'How many pages to parse in kickass ?'
                 );
         }
 
         protected function execute(InputInterface $input, OutputInterface $output)
         {
+
             $this->oi = $output;
 
-            $page = $input->getArgument('page');
-            $page = ($page) ? $page : 1;
-            $baseUrl = str_replace("##page##", $page, $this->baseUrl);
+            $pages = $input->getArgument('pages');
+            $pages = ($pages) ? $pages : 3;
 
-            $output->writeln("Parsing list page number $page...");
+            //loop through all first i pages
+            for($i=1;$i<=$pages;$i++){
+                $baseUrl = str_replace("##page##", $i, $this->baseUrl);
 
-            //get all links to detailled page
-            $detailLinks = $this->kickass_parser->parseListPage($baseUrl);
+                $output->writeln("<question>Parsing list page number $i...</question>");
 
-            $output->writeln("Looking for new torrents...");
-            $this->getAndSaveNewData($detailLinks);
+                //get all links to detailled page
+                $detailLinks = $this->kickass_parser->parseListPage($baseUrl);
+
+                $output->writeln("Looking for new torrents...");
+                $this->getAndSaveNewData($detailLinks);
+            }
         }
 
 

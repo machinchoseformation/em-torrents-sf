@@ -66,7 +66,7 @@ class Movie
      * @var integer
      * @Assert\NotBlank(message="The movie must have a number of votes")
      * @Assert\GreaterThan(
-     *     value = 5000, message="Minimum 5000 votes !"
+     *     value = 5000, message="Minimum 1000 votes !"
      * )
      * @ORM\Column(name="numVotes", type="integer")
      */

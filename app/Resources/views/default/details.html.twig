@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block details_content %}
+<h2>{{ movie.title }} ({{ movie.year }})</h2>
+<h4>{{ movie.imdbRating|number_format(1, ".") }} ({{ movie.numVotes|number_format(0, ".", " ") }} votes)</h4>
+<div id="torrents_list">
+    <table class="table table-stripped">
+        <tr>
+            <th>Torrent</th>
+            <th>Seeders</th>
+            <th>Leechers</th>
+        </tr>
+    {% for torrent in movie.torrents %}
+        <tr>
+            <td>
+            <a href="{{ torrent.magnetLink }}" title="Download {{ torrent.title }} now !">{{ torrent.title }}</a>
+            </td>
+            <td>{{ torrent.seeders }}</td>
+            <td>{{ torrent.leechers }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+</div>
+{% endblock %}

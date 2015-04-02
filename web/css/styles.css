@@ -11,17 +11,17 @@
     border: 1px solid #CCC;
 }
 
-.movie img {
+.movie .poster {
     position: absolute;
+    opacity: 0.85;
 }
 
-.actions {
-    position: absolute;
-    bottom: 0;
-    height: 40px;
-    line-height: 40px;
-    width: 214px;
-    text-align: center;
+.movie.selected {
+    border: 1px solid #000;
+}
+
+.movie.selected .poster {
+    opacity: 1;
 }
 
 .imdb-rating {
@@ -35,4 +35,17 @@
     color: #000;
     text-align: center;
     opacity: 0.8;
+}
+
+#main_row {
+    position: relative;
+}
+
+#details_zone {
+    position: fixed;
+    right: 0;
+}
+
+#preloader {
+    margin: 20pxauto;
 }

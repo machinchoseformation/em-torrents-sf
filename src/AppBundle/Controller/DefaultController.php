@@ -2,6 +2,7 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\Movie;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
@@ -26,18 +27,13 @@ class DefaultController extends Controller
 
 
     /**
-     * @Route("/movie/remove/{id}", name="remove_movie")
-     */
-    public function removeMovieAction($id)
-    {
-
-    }
-
-    /**
      * @Route("/movie/get/{id}", name="get_movie")
      */
     public function getMovieAction($id)
     {
+        $movieRepo = $this->getDoctrine()->getRepository("AppBundle:Movie");
+        $movie = $movieRepo->getMovieWithTorrents($id);
 
+        return $this->render('default/details.html.twig', compact("movie"));
     }
 }

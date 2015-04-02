@@ -1,14 +1,10 @@
 {% extends 'base.html.twig' %}
 
-{% block body %}
+{% block main_content %}
     {% for movie in movies %}
-        <div class="movie" href="#{{ movie.id }}" title="{{ movie.title }}">
-            <img src="{{ movie.posterUrl }}" alt="{{ movie.title }}" />
+        <a class="movie" href="{{ path("get_movie", {"id":movie.id}) }}" title="{{ movie.title }}">
+            <img class="poster" src="{{ movie.posterUrl }}" alt="{{ movie.title }}" />
             <div class="imdb-rating">{{ movie.imdbRating }}</div>
-            <div class="actions">
-                <a class="btn btn-default btn-xs" href="{{ path('remove_movie', {"id" : movie.id}) }}">Remove</a>
-                <a class="btn btn-default btn-xs" href="{{ path('get_movie', {"id" : movie.id}) }}">Get</a>
-            </div>
-        </div>
+        </a>
     {% endfor %}
 {% endblock %}
