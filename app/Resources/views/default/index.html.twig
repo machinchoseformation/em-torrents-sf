@@ -6,6 +6,9 @@
             <img class="poster" src="{{ movie.posterUrl }}" alt="{{ movie.title }}" />
             <div class="imdb-rating">{{ movie.imdbRating }}</div>
         </a>
+    {% else %}
+        <h3>No new movies !</h3>
+        <p>Try running <code>php app/console em:parse:kickass</code> in terminal !</p>
     {% endfor %}
 
 {% endblock %}
