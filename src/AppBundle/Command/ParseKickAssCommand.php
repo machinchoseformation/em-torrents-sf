@@ -97,11 +97,14 @@
                 //maybe update here instead...
                 if ($torrentRepo->findOneByInfoHash($torrent->getInfoHash())){
                     $this->oi->writeln("Torrent already there !");
+                    //just go to next one directly
+                    //no need to get the movie again
                     continue;
                 }
 
                 //movie already in db ?
                 $movie = $movieRepo->findOneByImdbId( $torrent->getImdbId() );
+                //no movie
                 if (!$movie){
 
                     //get movie info from imdb
@@ -115,6 +118,7 @@
                     }
 
                     //save it, even if we do not save the torrent later on
+                    //add a "new" status
                     $movieStatus = new MovieStatus();
                     $movieStatus->setStatus("new");
                     $movieStatus->setMovie($movie);
@@ -135,13 +139,14 @@
                     continue;
                 }
 
-                //save if valid
-                //saving a new torrent, then mark movie in "waiting" status as "new"
+                //we are saving a new torrent
+                //so mark movie in "waiting" statuses as "new"
                 if ($movie->getStatus()->getStatus() == "waiting"){
                     $movieStatus = $movie->getStatus();
                     $movieStatus->setStatus("new");
                     $this->saveEntity($movieStatus, "MovieStatus");
                 }
+                //save if valid
                 $this->saveEntity($torrent, "Torrent");
             }
             return;

@@ -20,15 +20,6 @@
             $crawler = $this->client->request('GET', $listUrl);
             $linksCrawler = $crawler->filter("tr a.cellMainLink");
 
-            //only a few for faster testing
-            /*
-            $start = 8;
-            $end = $start+5;
-            $linksCrawler = $linksCrawler->reduce(function($node, $i) use($start,$end){
-                return $i >= $start && $i <= $end;
-            });
-            */
-
             //add all detail links in an array
             $detailLinks = array();
             $linksCrawler->each(function($linkCrawler) use (&$detailLinks) {
