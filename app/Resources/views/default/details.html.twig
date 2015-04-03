@@ -1,9 +1,16 @@
 {% extends 'base.html.twig' %}
 
 {% block details_content %}
-<h2>{{ movie.title }} ({{ movie.year }})</h2>
-<h4>{{ movie.imdbRating|number_format(1, ".") }} ({{ movie.numVotes|number_format(0, ".", " ") }} votes)</h4>
-<div id="torrents_list">
+    <img src="{{ movie.posterUrl }}" class="details-poster" />
+    <h2>{{ movie.title }} ({{ movie.year }})</h2>
+    <h4>{{ movie.imdbRating|number_format(1, ".") }} ({{ movie.numVotes|number_format(0, ".", " ") }} votes)</h4>
+    <p>{{ movie.genres|join(', ') }}</p>
+    <p>Directed by: {{ movie.director }}</p>
+    <p>Stars: {{ movie.cast }}</p>
+    <p>{{ movie.plot }}</p>
+    <p><a class="remove_link btn btn-danger" href="{{ path('remove_movie', {'movieId' : movie.id}) }}">Remove</a></p>
+    <p><a class="wait_link btn btn-warning" href="{{ path('wait_for_better_torrent', {'movieId' : movie.id}) }}">Wait for better torrent</a></p>
+    <div id="torrents_list">
     <table class="table table-stripped">
         <tr>
             <th>Torrent</th>
@@ -13,7 +20,7 @@
     {% for torrent in movie.torrents %}
         <tr>
             <td>
-            <a href="{{ torrent.magnetLink }}" title="Download {{ torrent.title }} now !">{{ torrent.title }}</a>
+            <a class="magnet_link" href="{{ path('download_torrent', {'torrentId': torrent.id}) }}" title="Download {{ torrent.title }} now !">{{ torrent.title }}</a>
             </td>
             <td>{{ torrent.seeders }}</td>
             <td>{{ torrent.leechers }}</td>

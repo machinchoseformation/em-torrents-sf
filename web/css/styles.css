@@ -6,7 +6,7 @@
     overflow: hidden;
     display: block;
     float: left;
-    margin: 4px 7px;
+    margin: 2px 3px;
     position: relative;
     border: 1px solid #CCC;
 }
@@ -20,8 +20,18 @@
     border: 1px solid #000;
 }
 
-.movie.selected .poster {
+.movie.selected .poster, .movie:hover .poster {
     opacity: 1;
+}
+
+.details-poster {
+    float: left;
+    margin: 0 20px 20px 0;
+    border: 1px solid #CCC;
+}
+
+#torrents_list {
+    clear: both;
 }
 
 .imdb-rating {

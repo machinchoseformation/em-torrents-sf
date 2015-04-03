@@ -2,6 +2,7 @@
 
     namespace AppBundle\Command;
 
+    use AppBundle\Entity\MovieStatus;
     use Symfony\Component\Console\Command\Command;
     use Symfony\Component\Console\Input\InputInterface;
     use Symfony\Component\Console\Input\InputArgument;
@@ -114,6 +115,10 @@
                     }
 
                     //save it, even if we do not save the torrent later on
+                    $movieStatus = new MovieStatus();
+                    $movieStatus->setStatus("new");
+                    $movieStatus->setMovie($movie);
+                    $movie->setStatus($movieStatus);
                     $this->saveEntity($movie, "Movie");
                 }
                 else {
@@ -131,6 +136,12 @@
                 }
 
                 //save if valid
+                //saving a new torrent, then mark movie in "waiting" status as "new"
+                if ($movie->getStatus()->getStatus() == "waiting"){
+                    $movieStatus = $movie->getStatus();
+                    $movieStatus->setStatus("new");
+                    $this->saveEntity($movieStatus, "MovieStatus");
+                }
                 $this->saveEntity($torrent, "Torrent");
             }
             return;

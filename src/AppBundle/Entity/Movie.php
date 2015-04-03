@@ -41,6 +41,21 @@ class Movie
     /**
      * @var string
      *
+     * @ORM\Column(name="cast", type="string", length=255)
+     */
+    private $cast;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="plot", type="text")
+     */
+    private $plot;
+
+
+    /**
+     * @var string
+     *
      * @Assert\NotBlank(message="The movie must have an imdb ID")
      * @Assert\Regex(
      *     pattern="/\d{7}/"
@@ -116,6 +131,11 @@ class Movie
      * @ORM\ManyToMany(targetEntity="AppBundle\Entity\Genre", inversedBy="movies", cascade={"remove", "persist"})
      */
     private $genres;
+
+    /**
+     * @ORM\OneToOne(targetEntity="AppBundle\Entity\MovieStatus", mappedBy="movie", cascade={"remove", "persist"})
+     */
+    private $status;
 
 
     /**
@@ -422,5 +442,75 @@ class Movie
     public function getGenres()
     {
         return $this->genres;
+    }
+
+    /**
+     * Set status
+     *
+     * @param \AppBundle\Entity\MovieStatus $status
+     * @return Movie
+     */
+    public function setStatus(\AppBundle\Entity\MovieStatus $status = null)
+    {
+        $this->status = $status;
+        $status->setMovie($this);
+
+        return $this;
+    }
+
+    /**
+     * Get status
+     *
+     * @return \AppBundle\Entity\MovieStatus 
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * Set cast
+     *
+     * @param string $cast
+     * @return Movie
+     */
+    public function setCast($cast)
+    {
+        $this->cast = $cast;
+
+        return $this;
+    }
+
+    /**
+     * Get cast
+     *
+     * @return string 
+     */
+    public function getCast()
+    {
+        return $this->cast;
+    }
+
+    /**
+     * Set plot
+     *
+     * @param string $plot
+     * @return Movie
+     */
+    public function setPlot($plot)
+    {
+        $this->plot = $plot;
+
+        return $this;
+    }
+
+    /**
+     * Get plot
+     *
+     * @return string 
+     */
+    public function getPlot()
+    {
+        return $this->plot;
     }
 }

@@ -27,6 +27,8 @@ class ImdbParser extends BaseParser {
         $movie->setTitle( $this->extractTitle($crawler) );
         $movie->setYear( $this->extractYear($crawler) );
         $movie->setDirector( $this->extractDirector($crawler) );
+        $movie->setCast( $this->extractCast($crawler) );
+        $movie->setPlot( $this->extractPlot($crawler) );
         $movie->setImdbRating( $this->extractRating($crawler) );
         $movie->setNumVotes( $this->extractNumVotes($crawler) );
         $movie->setPosterUrl( $this->extractPosterUrl($crawler) );
@@ -62,6 +64,42 @@ class ImdbParser extends BaseParser {
 
         return null;
     }
+
+    /**
+     * @param Crawler $crawler
+     * @return null|string
+     */
+    protected function extractCast(Crawler $crawler)
+    {
+
+        $castCrawler = $crawler->filter('div[itemprop="actors"] span[itemprop="name"]');
+        $actors = [];
+        if (count($castCrawler) > 0){
+            $castCrawler->each(function($nodeCrawler, $i) use(&$actors){
+                $actors[] = $nodeCrawler->text();
+            });
+            $actorsString = implode(", ", $actors);
+            return $actorsString;
+        }
+
+        return null;
+    }
+
+
+    /**
+     * @param Crawler $crawler
+     * @return null|string
+     */
+    protected function extractPlot(Crawler $crawler)
+    {
+        $plotCrawler = $crawler->filter('p[itemprop="description"]');
+        if (count($plotCrawler) > 0){
+            return trim($plotCrawler->text());
+        }
+
+        return null;
+    }
+
     /**
      * @param Crawler $crawler
      * @return null|string
