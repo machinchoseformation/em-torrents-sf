@@ -26,7 +26,7 @@ class MovieRepository extends EntityRepository
                 ORDER BY m.imdbRating DESC";
         $query = $this->getEntityManager()->createQuery($dql);
         $query->setFirstResult($offset);
-        $query->setMaxResults(20);
+        $query->setMaxResults(70);
         $paginator = new Paginator($query);
         return $paginator;
     }

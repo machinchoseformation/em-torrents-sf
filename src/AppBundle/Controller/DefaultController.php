@@ -70,7 +70,7 @@ class DefaultController extends Controller
         $movieRepo = $this->getDoctrine()->getRepository("AppBundle:Movie");
         $movie = $movieRepo->find($movieId);
         $status = $movie->getStatus();
-        $status->setStatus("waiting");
+        $status->setStatus("waiting ");
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($status);

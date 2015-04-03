@@ -1,5 +1,15 @@
 (function(){
 
+    function showPreloader() {
+        $("#details_content").empty();
+        $("#preloader").show();
+    }
+
+    function hidePreloader(){
+        console.log("yo");
+        $("#preloader").hide();
+    }
+
     function movieClicked(e) {
         e.preventDefault();
         showPreloader();
@@ -9,20 +19,10 @@
         $.ajax({
             url: movieUrl
         }).done(function (response) {
-            $("#details_content").html($(response).find("#details_content").html());
+            $("#details_content").html( $(response).find("#details_content").html() );
         }).always(function(response){
             hidePreloader();
         });
-    }
-
-    function showPreloader() {
-        $("#details_content").empty();
-        $("#preloader").show();
-    }
-
-    function hidePreloader(){
-        console.log("yo");
-        $("#preloader").hide();
     }
 
     function removeMovieVisuals(){
@@ -58,11 +58,10 @@
             });
     }
 
-    (function init() {
-        $("#main_zone").on("click", ".movie", movieClicked);
-        $("#details_zone").on("click", ".magnet_link", magnetLinkClicked);
-        $("#details_zone").on("click", ".remove_link", waitOrRemoveLinkClicked);
-        $("#details_zone").on("click", ".wait_link", waitOrRemoveLinkClicked);
-        $(".movie").first().click();
-    })();
+    $("#main_zone").on("click", ".movie", movieClicked);
+    $("#details_zone").on("click", ".magnet_link", magnetLinkClicked);
+    $("#details_zone").on("click", ".remove_link", waitOrRemoveLinkClicked);
+    $("#details_zone").on("click", ".wait_link", waitOrRemoveLinkClicked);
+    $(".movie").first().click();
 })();
+
